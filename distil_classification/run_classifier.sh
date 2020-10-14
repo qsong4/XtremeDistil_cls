@@ -1,0 +1,20 @@
+BERT_BASE_DIR=./chinese_roberta_wwm_ext_L-12_H-768_A-12
+python3.6 run_classifier.py \
+  --task_name=sp \
+  --do_train=true \
+  --do_eval=true \
+  --do_distil=false \
+  --data_dir=./data \
+  --vocab_file=$BERT_BASE_DIR/vocab.txt \
+  --bert_config_file=$BERT_BASE_DIR/bert_config.json \
+  --init_checkpoint=./pretraining_output/bert_model.ckpt \
+  --max_seq_length=64 \
+  --train_batch_size=128 \
+  --learning_rate=2e-5 \
+  --num_train_epochs=3.0 \
+  --output_dir=./finetune_output \
+  --s1_loss=kld \
+  --s_opt=adam \
+  --predict_batch_size=128 \
+  --pred_file=./data/acl_unlabeled_transfer.txt \
+  --word_emb_file=./data/glove.840B.300d.txt

@@ -46,7 +46,7 @@ flags.DEFINE_string(
     "The config json file corresponding to the pre-trained BERT model. "
     "This specifies the model architecture.")
 
-flags.DEFINE_string("task_name", None, "The name of the task to train.")
+flags.DEFINE_string("task_name", "sp", "The name of the task to train.")
 
 flags.DEFINE_string("vocab_file", None,
                     "The vocabulary file that the BERT model was trained on.")
@@ -321,23 +321,23 @@ class MnliProcessor(DataProcessor):
     return examples
 
 
-class MrpcProcessor(DataProcessor):
+class sentencePair(DataProcessor):
   """Processor for the MRPC data set (GLUE version)."""
 
   def get_train_examples(self, data_dir):
     """See base class."""
     return self._create_examples(
-        self._read_tsv(os.path.join(data_dir, "train.tsv")), "train")
+        self._read_tsv(os.path.join(data_dir, "train.txt")), "train")
 
   def get_dev_examples(self, data_dir):
     """See base class."""
     return self._create_examples(
-        self._read_tsv(os.path.join(data_dir, "dev.tsv")), "dev")
+        self._read_tsv(os.path.join(data_dir, "dev.txt")), "dev")
 
   def get_test_examples(self, data_dir):
     """See base class."""
     return self._create_examples(
-        self._read_tsv(os.path.join(data_dir, "test.tsv")), "test")
+        self._read_tsv(os.path.join(data_dir, "test.txt")), "test")
 
   def get_pred_examples(self, pred_file):
     """See base class."""
@@ -355,12 +355,12 @@ class MrpcProcessor(DataProcessor):
       if i == 0:
         continue
       guid = "%s-%s" % (set_type, i)
-      text_a = tokenization.convert_to_unicode(line[3])
-      text_b = tokenization.convert_to_unicode(line[4])
+      text_a = tokenization.convert_to_unicode(line[0])
+      text_b = tokenization.convert_to_unicode(line[1])
       if set_type == "test":
         label = "0"
       else:
-        label = tokenization.convert_to_unicode(line[0])
+        label = tokenization.convert_to_unicode(line[2])
       examples.append(
           InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label))
     return examples
@@ -875,7 +875,7 @@ def main(_):
   processors = {
       "cola": ColaProcessor,
       "mnli": MnliProcessor,
-      "mrpc": MrpcProcessor,
+      "sp": sentencePair,
       "xnli": XnliProcessor,
       "sst": SSTProcessor,
   }
@@ -904,7 +904,7 @@ def main(_):
 
   processor = processors[task_name]()
 
-  label_list = processor.get_labels(FLAGS.data_dir)
+  label_list = processor.get_labels()
 
   tokenizer = tokenization.FullTokenizer(
       vocab_file=FLAGS.vocab_file, do_lower_case=FLAGS.do_lower_case)
