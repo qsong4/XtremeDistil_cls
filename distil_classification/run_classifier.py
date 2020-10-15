@@ -341,8 +341,10 @@ class sentencePair(DataProcessor):
 
   def get_pred_examples(self, pred_file):
     """See base class."""
-    return self._create_examples(
-        self._read_tsv(pred_file, "test"))
+    print ('Prediction File  ', pred_file)
+    lines = self._read_tsv(pred_file)
+    examples = self._create_examples(lines, "test")
+    return lines, examples
 
   def get_labels(self):
     """See base class."""
@@ -1050,7 +1052,7 @@ def main(_):
     print ("Batch Size ", FLAGS.distil_batch_size)
     print ("Directory of script ", os.path.dirname(os.path.abspath(__file__)))
 
-    x_train, y_train, x_teacher, y_teacher, y_layer_teacher, tokenizer = generate_sequence_data(FLAGS.max_seq_length, FLAGS.data_dir+"/train.tsv", FLAGS.vocab_file, train=True, teacher_examples=result, teacher_lines=predict_lines)
+    x_train, y_train, x_teacher, y_teacher, y_layer_teacher, tokenizer = generate_sequence_data(FLAGS.max_seq_length, FLAGS.data_dir+"/train.txt", FLAGS.vocab_file, train=True, teacher_examples=result, teacher_lines=predict_lines)
 
     dense_hidden_size = y_layer_teacher.shape[1]
     print ("Dimension of teacher's representation layer : ", str(dense_hidden_size))
@@ -1059,7 +1061,7 @@ def main(_):
     #uncomment if there are separate dev files. otherwise 10% of training data will be used for validation.
     # x_dev, y_dev, _, _, _, _ = generate_sequence_data(path+"/"+task+"/dev.tsv", vocab_file, tokenizer=tokenizer)
 
-    x_test, y_test, _, _, _, _ = generate_sequence_data(FLAGS.max_seq_length, FLAGS.data_dir+"/dev.tsv", FLAGS.vocab_file, tokenizer=tokenizer)
+    x_test, y_test, _, _, _, _ = generate_sequence_data(FLAGS.max_seq_length, FLAGS.data_dir+"/dev.txt", FLAGS.vocab_file, tokenizer=tokenizer)
 
     # pretrained_word_embedding_file = FLAGS.path+'/pre-trained-data/glove.840B.300d.txt'
 

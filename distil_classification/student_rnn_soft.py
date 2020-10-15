@@ -134,19 +134,25 @@ def generate_sequence_data(MAX_SEQUENCE_LENGTH, input_file, vocab_file, train=Fa
 
     if input_file:
         label_count = defaultdict(int)
-        with open(input_file, encoding="ISO-8859-1") as f:
+        with open(input_file, encoding="UTF-8") as f:
             for line in f:
                 tok = line.strip().split('\t')
-                line = ' '.join(trim(wordpiece_tokenizer.tokenize(tok[0].strip()), MAX_SEQUENCE_LENGTH))
+                tok_texta = wordpiece_tokenizer.tokenize(tok[0].strip())
+                tok_textb = wordpiece_tokenizer.tokenize(tok[1].strip())
+                line = ' '.join(trim(tok_texta + ['[SEP]'] + tok_textb, MAX_SEQUENCE_LENGTH))
+                # line = ' '.join(trim(wordpiece_tokenizer.tokenize(tok[0].strip()), MAX_SEQUENCE_LENGTH))
                 texts.append(line)
-                labels.append(int(tok[1].strip()))
-                label_count[int(tok[1].strip())] += 1
+                labels.append(int(tok[2].strip()))
+                label_count[int(tok[2].strip())] += 1
         for key in label_count.keys():
             print ("Count of instances with label {} is {}".format(key, label_count[key]))
 
     if train and teacher_examples:
         for i, prediction in enumerate(teacher_examples):
-            line = ' '.join(trim(wordpiece_tokenizer.tokenize(teacher_lines[i][0]), MAX_SEQUENCE_LENGTH))
+            teacher_tok_texta = wordpiece_tokenizer.tokenize(teacher_lines[i][0].strip())
+            teacher_tok_textb = wordpiece_tokenizer.tokenize(teacher_lines[i][1].strip())
+            line = ' '.join(trim(teacher_tok_texta + ['[SEP]'] + teacher_tok_textb, MAX_SEQUENCE_LENGTH))
+            # line = ' '.join(trim(wordpiece_tokenizer.tokenize(teacher_lines[i][0]), MAX_SEQUENCE_LENGTH))
             texts_teacher.append(line)
             layer_teacher.append(prediction['output_layer'])
             labels_teacher.append(np.log(prediction['probabilities']/(1-prediction['probabilities'])))
